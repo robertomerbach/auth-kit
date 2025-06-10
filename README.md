@@ -45,14 +45,14 @@ This project provides a robust foundation for implementing authentication in you
 
 ### Installation
 
-#### 1. Clone the repository
+#### Clone the repository
 
    ```bash
    git clone https://github.com/robertomerbach/auth-kit.git
    cd auth-kit
    ```
 
-#### 2. Rename .env.example to .env (or .env.local) and set your environment variables in the project root
+#### Rename .env.example to .env (or .env.local) and set your environment variables in the project root
 
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -71,13 +71,13 @@ FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
 
 ```
 
-#### 3. Install dependencies:
+#### Install dependencies:
 
 ```bash
 npm install
 ```
 
-#### 4. Generate Prisma client and push the schema to the database:
+#### Generate Prisma client and push the schema to the database:
 
 ```bash
 npx prisma generate
@@ -86,13 +86,13 @@ npx prisma migrate dev
 
 ### Run the project
 
-#### 5. Running the development server:
+#### Running the development server:
 
 ```bash
 npm run dev
 ```
 
-#### 6. Running the project in production mode
+#### Running the project in production mode
 
 ```bash
 npm run build
