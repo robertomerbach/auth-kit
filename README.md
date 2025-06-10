@@ -41,18 +41,18 @@ This project provides a robust foundation for implementing authentication in you
 
 - Node.js (Latest LTS version recommended)  
 - PostgreSQL database  
-- npm or yarn package manager  
+- npm, yarn or pnpm package manager  
 
 ### Installation
 
-1. Clone the repository:
+#### 1. Clone the repository
+
    ```bash
    git clone https://github.com/robertomerbach/auth-kit.git
    cd auth-kit
+   ```
 
-
-### Environment Variables
-Rename the `.env.example` file to `.env` and set up your environment variables in root of the project.
+#### 2. Rename .env.example to .env (or .env.local) and set your environment variables in the project root
 
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -71,17 +71,28 @@ FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
 
 ```
 
-### Running the project in development mode
+#### 3. Install dependencies:
 
 ```bash
-pnpm install
-pnpm dev
+npm install
 ```
 
-### Running the project in production mode
+#### 4. Generate Prisma client and push the schema to the database:
 
 ```bash
-pnpm build
-pnpm start
+npx prisma generate
+npx prisma migrate dev
 ```
 
+#### 5. Run the development server:
+
+```bash
+npm run dev
+```
+
+#### 6. Running the project in production mode
+
+```bash
+npm run build
+npm run start
+```
