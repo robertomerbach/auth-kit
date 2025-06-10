@@ -121,7 +121,7 @@
   }
 
   button:not([disabled]) {
-    @apply cursor-pointer ;
+    @apply cursor-pointer;
   }
 
   button:disabled {

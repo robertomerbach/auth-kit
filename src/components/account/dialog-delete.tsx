@@ -12,7 +12,6 @@ import {
     DialogTitle,
 } from "../ui/dialog"
 import { Input } from "../ui/input"
-import { Label } from "../ui/label"
 import { Button } from "../ui/button"
 import { Loader } from "../loader"
 
@@ -23,25 +22,26 @@ interface DeleteAccountDialogProps {
 }
 
 export function DeleteAccountDialog({ isOpen, onClose, userEmail }: DeleteAccountDialogProps) {
-    const { setFormError, isLoading, startLoading, stopLoading } = useFormState()
+    const { setFormError, isLoading, startLoading, stopLoading, setFormSuccess } = useFormState()
     const [confirmEmail, setConfirmEmail] = useState("")
 
+    // Delete account
     const handleDelete = async () => {
         if (confirmEmail !== userEmail) return
 
-        startLoading()
+        startLoading('delete')
         try {
             await axios.delete("/api/user/delete-account")
-            // Sign out and redirect to home page after successful deletion
-            await signOut({ redirect: false })
-            window.location.href = "/"
+            setFormSuccess("Account deleted successfully!")
+            onClose()
+            await signOut({ redirect: true })
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 setFormError(error.response?.data?.error || "Failed to delete account")
             } else {
                 setFormError("An unexpected error occurred")
             }
-            stopLoading()
+            stopLoading('delete')
         }
     }
 
@@ -55,7 +55,7 @@ export function DeleteAccountDialog({ isOpen, onClose, userEmail }: DeleteAccoun
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2 pb-4">
-                    <Label htmlFor="confirm-email" className="text-sm text-muted-foreground ">Enter <b>{userEmail}</b> to confirm account deletion</Label>
+                    <p className="text-sm text-muted-foreground ">Enter &quot;<b className="select-all" onClick={() => setConfirmEmail(userEmail)}>{userEmail}</b>&quot; to confirm account deletion</p>
                     <Input
                         id="confirm-email"
                         value={confirmEmail}
@@ -67,18 +67,16 @@ export function DeleteAccountDialog({ isOpen, onClose, userEmail }: DeleteAccoun
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="cursor-pointer"
-                        disabled={isLoading}
+                        disabled={isLoading('delete')}
                     >
                         Cancel
                     </Button>
                     <Button
                         variant="destructive"
-                        onClick={handleDelete}
-                        className="cursor-pointer"
-                        disabled={isLoading || confirmEmail !== userEmail}
+                        onClick={handleDelete}  
+                        disabled={isLoading('delete') || confirmEmail !== userEmail}
                     >
-                        {isLoading ? <Loader size={16} /> : "Delete Account"}
+                        {isLoading('delete') ? <Loader size={16} /> : "Delete Account"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

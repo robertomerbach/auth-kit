@@ -1,6 +1,10 @@
 import { Separator } from "../ui/separator"
 import { UploadAvatar } from "./upload-avatar"
-import { UserFields } from "./user-fields"
+import { SectionSignIn } from "./section-signin"
+import { SectionPassword } from "./section-password"
+import { SectionName } from "./section-name"
+import { SectionDelete } from "./section-delete"
+import { SectionSessions } from "./section-sessions"
 
 interface AccountLayoutProps {
     user: {
@@ -9,10 +13,9 @@ interface AccountLayoutProps {
         email: string
         image: string
         language: string
-        createdAt: Date
-        accounts: {
-            provider: string
-        }[]
+        createdAt: string
+        hasPassword: boolean
+        accounts?: { provider: string }[]
     }
 }
 
@@ -27,7 +30,13 @@ export function AccountLayout({ user }: AccountLayoutProps) {
                 </div>
             </div>
             <Separator className="bg-foreground" /> 
-            <UserFields user={user} />
+            <div className="space-y-7 divide-y divide-border">
+                <SectionName user={user} />
+                <SectionPassword user={user} />
+                <SectionSignIn user={user} />
+                <SectionSessions />
+                <SectionDelete user={user} />
+            </div>
         </div>
     )
 }

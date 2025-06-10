@@ -9,4 +9,6 @@ export interface User {
   image: string | null;
   language: string;
   createdAt?: string | null;
+  accounts?: { provider: string }[]
+  hasPassword?: boolean
 }

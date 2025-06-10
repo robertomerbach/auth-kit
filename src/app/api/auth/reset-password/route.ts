@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         // Hash the new password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Update password and clear reset token fields
+        // Update password, clear reset token fields, and delete all sessions
         await prisma.user.update({
             where: { id: user.id },
             data: {
@@ -61,12 +61,17 @@ export async function POST(req: Request) {
                 resetToken: null,
                 resetTokenExpires: null,
                 emailVerified: user.emailVerified || new Date(), // Re-verify email if it was pending due to password reset or ensure it stays verified
+                sessions: {
+                    deleteMany: {} // Delete all sessions for security
+                }
             },
         });
 
         // Optionally, you could send a confirmation email here that the password was changed.
 
-        return NextResponse.json({ message: "Password has been reset successfully." }, { status: 200 });
+        return NextResponse.json({ 
+            message: "Password has been reset successfully. You will need to sign in again on all devices." 
+        }, { status: 200 });
 
     } catch (error) {
         console.error("Error resetting password:", error);

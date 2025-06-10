@@ -24,13 +24,11 @@ This project provides a robust foundation for implementing authentication in you
 - **Framework**: Next.js 15.3.2  
 - **Database ORM**: Prisma 6.8.2  
 - **Authentication**: NextAuth.js 4  
-- **UI Components**: Radix UI  
+- **UI Components**: Shadcn UI  
 - **Styling**: Tailwind CSS  
-- **Form Handling**: React Hook Form  
-- **Validation**: Zod  
-- **API Client**: Axios  
+- **Form Handling**: React Hook Form and Zod  
+- **API Client**: Axios
 - **Email Service**: Resend  
-- **State Management**: TanStack Query (React Query)  
 - **TypeScript**: For type safety  
 
 ---
