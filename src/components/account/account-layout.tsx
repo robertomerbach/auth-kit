@@ -1,10 +1,6 @@
+import { SectionDelete, SectionName, SectionPassword, SectionSignIn, SectionSessions } from "."
 import { Separator } from "../ui/separator"
 import { UploadAvatar } from "./upload-avatar"
-import { SectionSignIn } from "./section-signin"
-import { SectionPassword } from "./section-password"
-import { SectionName } from "./section-name"
-import { SectionDelete } from "./section-delete"
-import { SectionSessions } from "./section-sessions"
 
 interface AccountLayoutProps {
     user: {
