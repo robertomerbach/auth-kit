@@ -84,7 +84,9 @@ npx prisma generate
 npx prisma migrate dev
 ```
 
-#### 5. Run the development server:
+### Run the project
+
+#### 5. Running the development server:
 
 ```bash
 npm run dev
