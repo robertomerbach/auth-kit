@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react"
  * @param {string} props.name - Display name for the sign out option
  */
 export function SignOutItem({ name }: { name: string }) {
+
   return (
     <DropdownMenuItem
       className="cursor-pointer text-muted-foreground"

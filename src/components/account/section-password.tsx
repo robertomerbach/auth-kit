@@ -31,7 +31,7 @@ export function SectionPassword({user}: {user: User}) {
     }
 
     return (
-        <>
+    <>
         <ActionSection
             title="Password"
             description={
@@ -47,6 +47,6 @@ export function SectionPassword({user}: {user: User}) {
             isOpen={isPasswordDialogOpen}
             onClose={() => setIsPasswordDialogOpen(false)}
         />
-        </>
+    </>
     )
 }

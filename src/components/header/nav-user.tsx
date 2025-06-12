@@ -11,13 +11,12 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AvatarWrapper } from "@/components/avatar"
 
 import { User } from "@/types/user"
 import { ThemeSelector } from "./nav-user-theme"
 import { SignOutItem } from "./nav-user-signout"
-import { UserSkeleton } from "./nav-user-skeleton"
 import Link from "next/link"
-import { AvatarWrapper } from "@/components/avatar"
 import { UserIcon } from "lucide-react"
 
 /**
@@ -25,19 +24,13 @@ import { UserIcon } from "lucide-react"
  */
 interface NavUserProps {
   user?: User | null;
-  isLoading?: boolean;
 }
 
 /**
  * User navigation component that displays user avatar and dropdown menu
  * Provides access to profile, team management, theme settings and logout
  */
-export const NavUser = memo(function NavUser({ user, isLoading }: NavUserProps) {
-
-  // Display skeleton while loading or when no user data is available
-  if (isLoading || !user) {
-    return <UserSkeleton />;
-  }
+export const NavUser = memo(function NavUser({ user }: NavUserProps) {
 
   const { name, email, image } = user || {}
 

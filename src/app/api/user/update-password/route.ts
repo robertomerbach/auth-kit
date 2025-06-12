@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import prisma from "@/lib/db"
+import prisma from "@/lib/prisma"
 import { passwordSchema } from "@/lib/validations"
 import { ZodError } from "zod"
 import { hash } from "bcryptjs"
+import { getClientIP } from "@/lib/ip"
+import { logActivity } from "@/lib/activity"
+import { ActivityTypes } from "@/lib/constants"
 
 export async function POST(req: Request) {
   try {
@@ -19,6 +22,7 @@ export async function POST(req: Request) {
 
     const body = await req.json()
     const validatedData = passwordSchema.parse(body)
+    const ipAddress = await getClientIP()
 
     // Hash the password
     const hashedPassword = await hash(validatedData.password, 12)
@@ -30,6 +34,8 @@ export async function POST(req: Request) {
         password: hashedPassword
       }
     })
+
+    await logActivity(session.user.id, ActivityTypes.CREATE_PASSWORD, ipAddress);
 
     return NextResponse.json({ success: true })
   } catch (error) {

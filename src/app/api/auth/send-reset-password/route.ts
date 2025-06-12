@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import crypto from "crypto"
-import prisma from "@/lib/db"
+import prisma from "@/lib/prisma"
 import { emailSchema } from "@/lib/validations"
-import { resend } from "@/lib/email"
+import { resend } from "@/lib/resend"
 import { EmailTemplate } from "@/components/email/email-template"
 import { ResetPasswordEmail } from "@/components/email/email-reset-password"
 

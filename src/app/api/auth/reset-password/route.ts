@@ -1,8 +1,11 @@
 import { z } from "zod"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/db"
+import prisma from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { resetPasswordSchema } from "@/lib/validations"
+import { getClientIP } from "@/lib/ip"
+import { ActivityTypes } from "@/lib/constants"
+import { logActivity } from "@/lib/activity"
 
 // Extend the schema to include the token
 const resetPasswordBodySchema = resetPasswordSchema.innerType().extend({
@@ -20,6 +23,8 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
+
+        const ipAddress = await getClientIP()
 
         const { token, password, confirmPassword } = parseResult.data;
 
@@ -63,9 +68,12 @@ export async function POST(req: Request) {
                 emailVerified: user.emailVerified || new Date(), // Re-verify email if it was pending due to password reset or ensure it stays verified
                 sessions: {
                     deleteMany: {} // Delete all sessions for security
-                }
+                },
             },
+    
         });
+
+        await logActivity(user.id, ActivityTypes.PASSWORD_RESET, ipAddress);
 
         // Optionally, you could send a confirmation email here that the password was changed.
 

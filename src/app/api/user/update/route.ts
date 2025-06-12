@@ -1,9 +1,13 @@
+import prisma from "@/lib/prisma"
+import { authOptions } from "@/lib/auth"
+import { updateAccountSchema } from "@/lib/validations"
+import { getClientIP } from "@/lib/ip"
+
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import prisma from "@/lib/db"
-import { updateAccountSchema } from "@/lib/validations"
 import { ZodError } from "zod"
+import { logActivity } from "@/lib/activity"
+import { ActivityTypes } from "@/lib/constants"
 
 export async function PATCH(req: Request) {
   try {
@@ -18,6 +22,8 @@ export async function PATCH(req: Request) {
 
     const body = await req.json()
     const validatedData = updateAccountSchema.parse(body)
+
+    const ipAddress = await getClientIP()
 
     // Check if email is being updated and if it's already in use
     if (validatedData.email) {
@@ -45,6 +51,8 @@ export async function PATCH(req: Request) {
         email: validatedData.email,
       }
     })
+
+    await logActivity(session.user.id, ActivityTypes.UPDATE_PROFILE, ipAddress);
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import prisma from "@/lib/db"
+import prisma from "@/lib/prisma"
+import { getClientIP } from "@/lib/ip"
+import { ActivityTypes } from "@/lib/constants"
+import { logActivity } from "@/lib/activity"
+
 
 export async function POST(req: Request) {
   try {
@@ -16,6 +20,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData()
     const file = formData.get("file") as File
+    const ipAddress = await getClientIP()
     
     if (!file) {
       return NextResponse.json(
@@ -50,6 +55,8 @@ export async function POST(req: Request) {
         image: imageUrl
       }
     })
+
+    await logActivity(session.user.id, ActivityTypes.UPDATE_PROFILE, ipAddress);
 
     return NextResponse.json({ success: true, url: imageUrl })
   } catch (error) {

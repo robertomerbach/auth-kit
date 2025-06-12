@@ -4,11 +4,11 @@
  */
 export interface User {
   id: string;
-  name: string | null;
-  email: string | null;
-  image: string | null;
+  name: string;
+  email: string;
+  image: string;
   language: string;
-  createdAt?: string | null;
+  createdAt: Date;
   accounts?: { provider: string }[]
-  hasPassword?: boolean
+  hasPassword?: boolean // Computed from password field
 }

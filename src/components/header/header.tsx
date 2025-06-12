@@ -1,34 +1,21 @@
 'use client'
 
-import { User } from "@/types/user"
-import { NavUser } from "./nav-user"
-import { useCurrentSession } from "@/hooks/use-current-session"
+import Link from "next/link"
 import { ScanFace } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { Separator } from "@radix-ui/react-separator"
-import Link from "next/link"
+import { NavUser } from "./nav-user"
+import { User } from "@/types/user"
+
+interface HeaderProps {
+  user: User
+}
 
 /**
  * Application header component that displays the top navigation bar
  * Contains the dashboard title and user navigation menu
  */
-export function Header() {
-
-  const { session, isLoading } = useCurrentSession();
-
-    // Transform session data to match User type required by NavUser component
-  // Add missing createdAt property with fallback to current date
-  const user: User | null = session
-    ? {
-        id: session.id,
-        name: session.name,
-        email: session.email,
-        image: session.image,
-        language: session.language,
-      }
-    : null;
-
-
+export function Header({ user }: HeaderProps) {
   const pathname = usePathname();
 
   let title = "";
@@ -50,7 +37,7 @@ export function Header() {
           <h1 className="text-lg font-bold leading-none">{title}</h1>
         </div>
         <div className="ml-auto flex items-center gap-2 h-10">
-          <NavUser user={user} isLoading={isLoading} />
+          <NavUser user={user} />
         </div>
       </div>
     </header>

@@ -1,57 +1,73 @@
 "use client"
 
-import axios from "axios"
+import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { Icons } from "../icons"
-import { ActionSection } from "./action-section"
 import { User } from "@/types/user"
-import { useFormState } from "@/hooks/use-form-state"
-import { useCurrentSession } from "@/hooks/use-current-session"
-import { useRouter } from "next/navigation"
+
+import { Mail } from "lucide-react"
+import { Icons } from "../icons"
+
+import { Button } from "../ui/button"
+import { Card } from "../ui/card"
+import { GoogleUnlinkDialog } from "./dialog-unlink-google"
 
 export function SectionSignIn({user}: {user: User}) {
-    const router = useRouter()    
-    const { update } = useCurrentSession()
-    const { setFormSuccess, setFormError, startLoading, stopLoading, isLoading } = useFormState()
 
-    // Unlink Google account
-    const handleUnlinkGoogle = async () => {
-        if (isLoading('google')) return
+    // Google unlink dialog
+    const [isGoogleUnlinkDialogOpen, setIsGoogleUnlinkDialogOpen] = useState(false)
 
-        startLoading('google')
-        try {
-            await axios.post("/api/user/unlink-google")
-            router.refresh()
-            await update()
-            setFormSuccess("Google account unlinked successfully!")
-        } catch (error) {
-            const errorMessage = axios.isAxiosError(error)
-                ? error.response?.data?.error
-                : "An unexpected error occurred."
-            setFormError(errorMessage || "Failed to unlink Google account")
-        } finally {
-            stopLoading('google')
-        }
-    }
-    
     // Check if Google account is connected
     const isGoogleConnected = user.accounts?.some(acc => acc.provider === "google")
 
     return (
-        <ActionSection
-            title="Sign-in method"
-            description={
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-2 text-foreground">
-                        {isGoogleConnected ? <Icons.Google size={16} /> : null}
-                        <span>{isGoogleConnected ? "Google" : "Email"}</span>
+    <>
+        <div className="flex flex-col gap-4 pb-8">
+            <div className="flex flex-col gap-1">
+                <h3 className="text-xl font-semibold tracking-tight leading-snug">Sign-in method</h3>
+                <p className="text-muted-foreground text-sm">Manage your sign-in methods</p>
+            </div>
+            <Card className="bg-background">
+                <div className="flex flex-col gap-6 divide-y divide-border">
+                    <div className="flex flex-row justify-between gap-2 items-center pb-6 px-6">
+                        <div className="flex flex-col">
+                            <div className="flex flex-row gap-4 items-center">  
+                                <Mail size={28} />
+                                <div className="flex flex-col space-y-1 text-foreground">
+                                    <span className="leading-none">Email</span>
+                                    <span className="text-muted-foreground text-sm leading-none text-ellipsis overflow-hidden max-w-[150px] sm:max-w-full">
+                                        {user.email}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => {}}> 
+                            Manage
+                        </Button>
                     </div>
-                    <span className="text-muted-foreground">{user.email}</span>
+                    <div className="flex flex-row justify-between gap-2 items-center px-6">
+                        <div className="flex flex-col">
+                            <div className="flex flex-row gap-4 items-center">  
+                                <Icons.Google size={28} />
+                                <div className="flex flex-col space-y-1 text-foreground">
+                                    <span className="leading-none">Google</span>
+                                    <span className="text-muted-foreground text-sm leading-none text-ellipsis overflow-hidden max-w-[150px] sm:max-w-full">
+                                        {isGoogleConnected ? user.email : "Connect your google account"}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={isGoogleConnected ? () => setIsGoogleUnlinkDialogOpen(true) : () => signIn("google")}>
+                            {isGoogleConnected ? "Disconnect" : "Connect Google"}
+                        </Button>
+                    </div>
                 </div>
-            }
-            actionText={isGoogleConnected ? "Disconnect" : "Connect Google"}
-            onAction={isGoogleConnected ? handleUnlinkGoogle : () => signIn("google")}
-            isLoading={isLoading('google')}
+            </Card>
+        </div>
+
+        <GoogleUnlinkDialog
+            isOpen={isGoogleUnlinkDialogOpen}
+            onClose={() => setIsGoogleUnlinkDialogOpen(false)}
         />
+    </>
     )
 }

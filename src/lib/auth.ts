@@ -1,11 +1,15 @@
-import prisma from "@/lib/db"
+import prisma from "@/lib/prisma"
+
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { NextAuthOptions } from "next-auth"
 import { compare } from "bcryptjs"
 
+import { logActivity } from "./activity"
+import { ActivityTypes } from "./constants"
+import { getClientIP } from "./ip"
+
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
-import FacebookProvider from "next-auth/providers/facebook"
 
 /**
  * NextAuth configuration options
@@ -14,16 +18,20 @@ import FacebookProvider from "next-auth/providers/facebook"
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
+
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    maxAge: 30 * 24 * 60 * 60, // Session valid for 30 days
+    updateAge: 24 * 60 * 60,   // Token updated every 24 hours
   },
+
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/login", // Custom login page
+    error: "/login",  // Redirect errors to login
   },
+
   providers: [
+    // Google OAuth provider
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -36,10 +44,8 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!
-    }),
+
+    // Custom credentials provider for email/password login
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -47,20 +53,23 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        // Validate presence of credentials
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password required")
         }
 
+        // Look up user by email
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         })
 
+        // Reject if user not found or missing password
         if (!user || !user.password) {
           throw new Error("Email or password incorrect")
         }
 
+        // Verify password hash
         const isValid = await compare(credentials.password, user.password)
-
         if (!isValid) {
           throw new Error("Invalid password")
         }
@@ -69,27 +78,32 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
+
   callbacks: {
+    // Runs on every sign-in
     async signIn({ user, account, profile }) {
       if (!user.email) return false;
 
       try {
-        // Get profile image from Google profile data
-        const googleImage = account?.provider === "google" 
+        // Extract Google profile image if available
+        const googleImage = account?.provider === "google"
           ? (profile as { picture?: string })?.picture || undefined
           : undefined;
 
-        // Check if user exists
+        // Retrieve user from database
         const dbUser = await prisma.user.findUnique({
           where: { email: user.email },
           include: { accounts: true }
         });
 
-        // For Google sign in
+        // Capture user IP address
+        const ipAddress = await getClientIP();
+
+        // Handle Google sign-in
         if (account?.provider === "google") {
           if (!dbUser) {
-            // Create new user directly in database
-            await prisma.user.create({
+            // Create user and account if not found
+            const newUser = await prisma.user.create({
               data: {
                 email: user.email,
                 name: user.name || '',
@@ -110,10 +124,13 @@ export const authOptions: NextAuthOptions = {
                 }
               }
             });
+
+            // Log Google login activity
+            await logActivity(newUser.id, ActivityTypes.REGISTER, ipAddress);
             return true;
           }
 
-          // If user exists but doesn't have Google account linked
+          // Link Google account to existing user
           if (!dbUser.accounts.find(acc => acc.provider === "google")) {
             await prisma.account.create({
               data: {
@@ -141,10 +158,17 @@ export const authOptions: NextAuthOptions = {
               });
             }
           }
+
+          // Log Google login
+          await logActivity(dbUser.id, ActivityTypes.LOGIN_GOOGLE, ipAddress);
           return true;
         }
 
-        // For other providers, only allow if user exists
+        // Handle email/password login
+        if (account?.provider === "credentials" && dbUser) {
+          await logActivity(dbUser.id, ActivityTypes.LOGIN, ipAddress);
+        }
+
         return !!dbUser;
       } catch (error) {
         console.error("Sign in error:", error);
@@ -152,6 +176,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
+    // Populate session with user data
     async session({ session, token }) {
       if (session.user) {
         const user = await prisma.user.findUnique({
@@ -165,11 +190,13 @@ export const authOptions: NextAuthOptions = {
           session.user.image = user.image || null;
           session.user.language = user.language || "en";
           session.user.createdAt = user.createdAt;
+
         }
       }
       return session;
     },
 
+    // Customize JWT token payload
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.sub = user.id;
@@ -180,11 +207,12 @@ export const authOptions: NextAuthOptions = {
         token.createdAt = user.createdAt;
       }
 
+      // Update token on session update
       if (trigger === "update" && session?.user) {
         const updatedUser = await prisma.user.findUnique({
           where: { id: token.sub! }
         });
-        
+
         if (updatedUser) {
           token.picture = updatedUser.image;
           token.name = session.user.name || token.name;
