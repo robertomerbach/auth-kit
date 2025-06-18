@@ -21,8 +21,8 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // Session valid for 30 days
-    updateAge: 24 * 60 * 60,   // Token updated every 24 hours
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60,    // 24 hours
   },
 
   pages: {
@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
 
         // Look up user by email
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email }
         })
 
         // Reject if user not found or missing password
@@ -111,15 +111,15 @@ export const authOptions: NextAuthOptions = {
                 emailVerified: new Date(),
                 accounts: {
                   create: {
-                    type: account.type,
+                    type: account.type!,
                     provider: account.provider,
-                    providerAccountId: account.providerAccountId,
+                    providerAccountId: account.providerAccountId!,
                     access_token: account.access_token,
                     expires_at: account.expires_at,
                     token_type: account.token_type,
                     scope: account.scope,
                     id_token: account.id_token,
-                    session_state: account.session_state,
+                    session_state: account.session_state
                   }
                 }
               }
@@ -135,16 +135,16 @@ export const authOptions: NextAuthOptions = {
             await prisma.account.create({
               data: {
                 userId: dbUser.id,
-                type: account.type,
+                type: account.type!,
                 provider: account.provider,
-                providerAccountId: account.providerAccountId,
+                providerAccountId: account.providerAccountId!,
                 access_token: account.access_token,
                 expires_at: account.expires_at,
                 token_type: account.token_type,
                 scope: account.scope,
                 id_token: account.id_token,
-                session_state: account.session_state,
-              },
+                session_state: account.session_state
+              }
             });
 
             // Update user profile with Google data
@@ -179,19 +179,12 @@ export const authOptions: NextAuthOptions = {
     // Populate session with user data
     async session({ session, token }) {
       if (session.user) {
-        const user = await prisma.user.findUnique({
-          where: { id: token.sub }
-        });
-
-        if (user) {
-          session.user.id = token.sub;
-          session.user.name = user.name || '';
-          session.user.email = user.email || '';
-          session.user.image = user.image || null;
-          session.user.language = user.language || "en";
-          session.user.createdAt = user.createdAt;
-
-        }
+        session.user.id = token.sub!;
+        session.user.name = token.name || '';
+        session.user.email = token.email || '';
+        session.user.image = token.picture || null;
+        session.user.language = (token as any).language || "en";
+        session.user.createdAt = (token as any).createdAt;
       }
       return session;
     },
@@ -203,8 +196,8 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name || '';
         token.email = user.email || '';
         token.picture = user.image || null;
-        token.language = user.language || "en";
-        token.createdAt = user.createdAt;
+        token.language = (user as any).language || "en";
+        token.createdAt = (user as any).createdAt;
       }
 
       // Update token on session update
@@ -217,7 +210,7 @@ export const authOptions: NextAuthOptions = {
           token.picture = updatedUser.image;
           token.name = session.user.name || token.name;
           token.email = session.user.email || token.email;
-          token.language = session.user.language || token.language;
+          token.language = (session.user as any).language || token.language;
           token.createdAt = updatedUser.createdAt;
         }
       }
