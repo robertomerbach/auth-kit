@@ -5,28 +5,21 @@ export const metadata = {
   description: "Make sure to login to your account to access your application",
 }
 
-interface LoginPageProps {
-  searchParams: {
-    callbackUrl?: string;
-    email?: string;
-  };
-}
-
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  // Check if user is already logged in
-  // const session = await getServerSession(authOptions);
-
-  // Extract parameters from URL
-  const params = await Promise.resolve(searchParams);
+/**
+ * Login page.
+ * @param searchParams URL search parameters, possibly containing the user's email.
+ * @returns JSX.Element with the login form.
+ */
+export default async function LoginPage({ 
+  searchParams
+}: {
+  searchParams: Promise<{ email?: string, callbackUrl?: string }> 
+}) {
 
   // Extract parameters
-  const callbackUrl = params.callbackUrl || "/";
-  const email = params.email || "";
-  
-  // // If user is already logged in, redirect to callbackUrl
-  // if (session) {
-  //   redirect(callbackUrl);
-  // }
+  const params = await searchParams;
+  const callbackUrl = params?.callbackUrl || "/";
+  const email = params?.email || "";
   
   return <LoginForm callback={callbackUrl} email={email} />
 }

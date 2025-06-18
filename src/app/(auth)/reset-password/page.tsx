@@ -8,18 +8,20 @@ export const metadata = {
   description: "Enter a new password to access your account.",
 };
 
-interface ResetPasswordPageProps {
-  searchParams: {
-    token?: string;
-  };
-}
-
-export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
-  // Extract parameters from URL
-  const params = await Promise.resolve(searchParams);
-
+/**
+ * Reset password page.
+ * @param searchParams URL search parameters, possibly containing the token.
+ * @returns JSX.Element with the reset password form.
+ */
+export default async function ResetPasswordPage({ 
+    searchParams
+}: { 
+    searchParams: Promise<{ token?: string }> 
+}) {
+ 
   // Extract parameters
-  const token = params.token || "";
+  const params = await searchParams;
+  const token = params?.token || "";
 
   if (!token) {
       return (
