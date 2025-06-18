@@ -26,7 +26,7 @@ export function SectionSignIn({user}: {user: User}) {
                 <h3 className="text-xl font-semibold tracking-tight leading-snug">Sign-in method</h3>
                 <p className="text-muted-foreground text-sm">Manage your sign-in methods</p>
             </div>
-            <Card className="bg-background">
+            <Card className="bg-background shadow-none">
                 <div className="flex flex-col gap-6 divide-y divide-border">
                     <div className="flex flex-row justify-between gap-2 items-center pb-6 px-6">
                         <div className="flex flex-col">

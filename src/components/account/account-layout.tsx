@@ -20,10 +20,10 @@ export function AccountLayout({ user }: AccountLayoutProps) {
                 </div>
             </div> 
             <Tabs defaultValue="profile" className="w-full space-y-7">
-                <div className="sticky top-[72px] z-10 bg-background mb-4 border-b border-border">
+                <div className="sticky top-[72px] z-10 bg-background/90 backdrop-blur-sm mb-4 border-b border-border">
                     <TabsList className="bg-transparent rounded-none flex flex-wrap -mb-px text-sm font-medium text-center space-x-2 h-10 p-0">
-                        <TabsTrigger className="inline-block dark:data-[state=active]:bg-transparent dark:data-[state=active]:text-foreground dark:data-[state=active]:border-foreground border-0 bg-transparent border-b-2 rounded-none border-transparent px-4" value="profile">Profile</TabsTrigger>
-                        <TabsTrigger className="inline-block dark:data-[state=active]:bg-transparent dark:data-[state=active]:text-foreground dark:data-[state=active]:border-foreground border-0 bg-transparent border-b-2 rounded-none border-transparent px-4" value="activity">Activity</TabsTrigger>
+                        <TabsTrigger className="inline-block data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent dark:data-[state=active]:text-foreground data-[state=active]:border-foreground dark:data-[state=active]:border-foreground border-0 bg-transparent border-b-2 rounded-none border-transparent px-4" value="profile">Profile</TabsTrigger>
+                        <TabsTrigger className="inline-block data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent dark:data-[state=active]:text-foreground data-[state=active]:border-foreground dark:data-[state=active]:border-foreground border-0 bg-transparent border-b-2 rounded-none border-transparent px-4" value="activity">Activity</TabsTrigger>
                     </TabsList>
                 </div>
                 <TabsContent value="profile">

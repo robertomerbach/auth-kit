@@ -29,7 +29,7 @@ export function SectionActivity() {
   }
 
   return (
-     <Card className="p-2 bg-transparent">
+     <Card className="p-2 bg-transparent shadow-none">
       <CardContent className="p-0">
         {isLoading ? (
           // Loading skeleton
